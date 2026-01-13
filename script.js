@@ -1,10 +1,10 @@
 const state = {
-  cabinetWidth: 24,
+  cabinetWidth: 60,
   cabinetHeight: 30,
-  rows: 2,
+  rows: 1,
   columns: 2,
-  stileWidth: 1.5,
-  railWidth: 1.5,
+  stileWidth: 2,
+  railWidth: 2,
 };
 
 const els = {
@@ -155,61 +155,76 @@ function renderSvg(calculations) {
     }
   }
 
-  const labelX = baseX;
   const labelStartY = 18;
   const labelLineHeight = 16;
 
-  els.diagram.appendChild(
+  const widthGroup = createSvgElement("g", {
+    transform: `translate(${baseX}, ${labelStartY})`,
+  });
+
+  widthGroup.appendChild(
     createSvgElement("text", {
-      x: labelX,
-      y: labelStartY,
+      x: 0,
+      y: 0,
       "text-anchor": "start",
       "font-size": 12,
       "font-weight": "bold",
       "font-family": "Courier New, monospace",
       fill: "#100F0F",
+      "dominant-baseline": "hanging",
     })
   ).textContent = `${toFraction(state.cabinetWidth)} IN TOTAL WIDTH`;
 
   if (calculations.panelWidth > 0) {
-    els.diagram.appendChild(
+    widthGroup.appendChild(
       createSvgElement("text", {
-        x: labelX,
-        y: labelStartY + labelLineHeight,
+        x: 0,
+        y: labelLineHeight,
         "text-anchor": "start",
         "font-size": 11,
         "font-weight": "bold",
         "font-family": "Courier New, monospace",
         fill: "#205EA6",
+        "dominant-baseline": "hanging",
       })
     ).textContent = `PANEL: ${toFraction(calculations.panelWidth)} IN W`;
   }
 
-  els.diagram.appendChild(
+  els.diagram.appendChild(widthGroup);
+
+  const heightGroup = createSvgElement("g", {
+    transform: `translate(18, 50) rotate(-90)`,
+  });
+
+  heightGroup.appendChild(
     createSvgElement("text", {
-      x: labelX,
-      y: labelStartY + labelLineHeight * 2,
-      "text-anchor": "start",
+      x: 0,
+      y: 0,
+      "text-anchor": "end",
       "font-size": 12,
       "font-weight": "bold",
       "font-family": "Courier New, monospace",
       fill: "#100F0F",
+      "dominant-baseline": "hanging",
     })
   ).textContent = `${toFraction(state.cabinetHeight)} IN TOTAL HEIGHT`;
 
   if (calculations.panelHeight > 0) {
-    els.diagram.appendChild(
+    heightGroup.appendChild(
       createSvgElement("text", {
-        x: labelX,
-        y: labelStartY + labelLineHeight * 3,
-        "text-anchor": "start",
+        x: 0,
+        y: labelLineHeight,
+        "text-anchor": "end",
         "font-size": 11,
         "font-weight": "bold",
         "font-family": "Courier New, monospace",
         fill: "#24837B",
+        "dominant-baseline": "hanging",
       })
     ).textContent = `PANEL: ${toFraction(calculations.panelHeight)} IN H`;
   }
+
+  els.diagram.appendChild(heightGroup);
 }
 
 function updateValidation() {
