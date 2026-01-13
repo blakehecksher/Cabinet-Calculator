@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cabinet Face Frame Panel Calculator</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <div class="container">
+        <header class="header">
+          <h1>CABINET FACE FRAME PANEL CALCULATOR</h1>
+          <div class="version">VERSION 2.0</div>
+        </header>
+
+        <div class="layout">
+          <section class="inputs">
+            <div class="card">
+              <h2>CABINET DIMENSIONS</h2>
+              <div class="field">
+                <label for="cabinet-width">WIDTH (INCHES) - REQUIRED</label>
+                <input id="cabinet-width" type="number" step="0.03125" />
+              </div>
+              <div class="field">
+                <label for="cabinet-height">HEIGHT (INCHES) - REQUIRED</label>
+                <input id="cabinet-height" type="number" step="0.03125" />
+              </div>
+            </div>
+
+            <div class="card">
+              <h2>PANEL LAYOUT CONFIGURATION</h2>
+              <div class="field">
+                <label for="rows">ROWS - MINIMUM 1</label>
+                <input id="rows" type="number" min="1" />
+              </div>
+              <div class="field">
+                <label for="columns">COLUMNS - MINIMUM 1</label>
+                <input id="columns" type="number" min="1" />
+              </div>
+            </div>
+
+            <div class="card">
+              <h2>FRAME MEMBER DIMENSIONS</h2>
+              <div class="field">
+                <label for="stile-width">STILE WIDTH (INCHES) - VERTICAL MEMBERS</label>
+                <input id="stile-width" type="number" step="0.03125" />
+              </div>
+              <div class="field">
+                <label for="rail-width">RAIL WIDTH (INCHES) - HORIZONTAL MEMBERS</label>
+                <input id="rail-width" type="number" step="0.03125" />
+              </div>
+            </div>
+
+            <div class="status">
+              <div class="status-title">CALCULATION STATUS</div>
+              <div id="status-stiles"></div>
+              <div id="status-rails"></div>
+              <div id="status-available"></div>
+            </div>
+          </section>
+
+          <section class="outputs">
+            <div class="results">
+              <h2>CALCULATED PANEL DIMENSIONS</h2>
+              <div class="result-grid">
+                <div class="result-card result-blue">
+                  <div class="result-label">PANEL WIDTH</div>
+                  <div id="panel-width" class="result-value">0</div>
+                  <div class="result-unit">INCHES</div>
+                </div>
+                <div class="result-card result-teal">
+                  <div class="result-label">PANEL HEIGHT</div>
+                  <div id="panel-height" class="result-value">0</div>
+                  <div class="result-unit">INCHES</div>
+                </div>
+                <div class="result-card result-purple">
+                  <div class="result-label">TOTAL PANELS</div>
+                  <div id="panel-total" class="result-value">0</div>
+                  <div class="result-unit">UNITS</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="drawing">
+              <h2>TECHNICAL DRAWING - FACE FRAME LAYOUT</h2>
+              <div class="drawing-frame">
+                <svg id="diagram" width="100%" height="350" viewBox="0 0 450 350"></svg>
+              </div>
+
+              <div class="legend">
+                <div class="legend-title">COMPONENT LEGEND</div>
+                <div class="legend-grid">
+                  <div class="legend-item">
+                    <span class="legend-swatch legend-panel"></span>
+                    <span>PANELS - RAISED OR FLAT</span>
+                  </div>
+                  <div class="legend-item">
+                    <span class="legend-swatch legend-frame"></span>
+                    <span>STILES &amp; RAILS - FRAME MEMBERS</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
