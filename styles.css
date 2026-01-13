@@ -75,11 +75,15 @@ body {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-template-rows: repeat(3, minmax(0, 1fr));
   grid-template-areas:
-    "cabinet layout frame"
-    "results drawing drawing"
-    ". drawing drawing";
+    "cabinet results results"
+    "layout drawing drawing"
+    "frame drawing drawing";
   gap: 20px;
   flex: 1;
+  min-height: 0;
+}
+
+.layout > section {
   min-height: 0;
 }
 
@@ -184,6 +188,7 @@ input:focus {
   padding: 24px;
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .results h2 {
@@ -257,6 +262,7 @@ input:focus {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  height: 100%;
 }
 
 .drawing h2 {

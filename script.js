@@ -231,11 +231,13 @@ function update() {
 
 function bindInput(el, key, parser) {
   el.value = state[key];
-  el.addEventListener("input", (event) => {
+  const handleChange = (event) => {
     const value = parser(event.target.value);
     state[key] = Number.isFinite(value) ? value : 0;
     update();
-  });
+  };
+  el.addEventListener("input", handleChange);
+  el.addEventListener("change", handleChange);
 }
 
 function clampRowsCols(value) {
