@@ -14,9 +14,6 @@ const els = {
   columns: document.getElementById("columns"),
   stileWidth: document.getElementById("stile-width"),
   railWidth: document.getElementById("rail-width"),
-  statusStiles: document.getElementById("status-stiles"),
-  statusRails: document.getElementById("status-rails"),
-  statusAvailable: document.getElementById("status-available"),
   panelWidth: document.getElementById("panel-width"),
   panelHeight: document.getElementById("panel-height"),
   panelTotal: document.getElementById("panel-total"),
@@ -161,7 +158,7 @@ function renderSvg(calculations) {
   els.diagram.appendChild(
     createSvgElement("text", {
       x: baseX + (state.cabinetWidth * scale) / 2,
-      y: 35,
+      y: 22,
       "text-anchor": "middle",
       "font-size": 12,
       "font-weight": "bold",
@@ -187,7 +184,7 @@ function renderSvg(calculations) {
     els.diagram.appendChild(
       createSvgElement("text", {
         x: baseX + state.stileWidth * scale + (calculations.panelWidth * scale) / 2,
-        y: baseY + state.cabinetHeight * scale + 25,
+        y: 40,
         "text-anchor": "middle",
         "font-size": 11,
         "font-weight": "bold",
@@ -224,12 +221,6 @@ function updateValidation() {
 function update() {
   updateValidation();
   const calculations = calculate();
-
-  els.statusStiles.textContent = `TOTAL STILE WIDTH: ${calculations.totalStileWidth.toFixed(3)} IN`;
-  els.statusRails.textContent = `TOTAL RAIL WIDTH: ${calculations.totalRailWidth.toFixed(3)} IN`;
-  els.statusAvailable.textContent = `AVAILABLE PANEL SPACE: ${calculations.availablePanelWidth.toFixed(
-    3
-  )} A- ${calculations.availablePanelHeight.toFixed(3)} IN`;
 
   els.panelWidth.textContent = toFraction(calculations.panelWidth);
   els.panelHeight.textContent = toFraction(calculations.panelHeight);
