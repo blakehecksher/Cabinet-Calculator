@@ -155,11 +155,15 @@ function renderSvg(calculations) {
     }
   }
 
+  const labelX = baseX;
+  const labelStartY = 18;
+  const labelLineHeight = 16;
+
   els.diagram.appendChild(
     createSvgElement("text", {
-      x: baseX + (state.cabinetWidth * scale) / 2,
-      y: 22,
-      "text-anchor": "middle",
+      x: labelX,
+      y: labelStartY,
+      "text-anchor": "start",
       "font-size": 12,
       "font-weight": "bold",
       "font-family": "Courier New, monospace",
@@ -167,44 +171,42 @@ function renderSvg(calculations) {
     })
   ).textContent = `${toFraction(state.cabinetWidth)} IN TOTAL WIDTH`;
 
-  els.diagram.appendChild(
-    createSvgElement("text", {
-      x: 25,
-      y: baseY + (state.cabinetHeight * scale) / 2,
-      "text-anchor": "middle",
-      "font-size": 12,
-      "font-weight": "bold",
-      "font-family": "Courier New, monospace",
-      fill: "#100F0F",
-      transform: `rotate(-90, 25, ${baseY + (state.cabinetHeight * scale) / 2})`,
-    })
-  ).textContent = `${toFraction(state.cabinetHeight)} IN TOTAL HEIGHT`;
-
-  if (calculations.panelWidth > 0 && calculations.panelHeight > 0) {
+  if (calculations.panelWidth > 0) {
     els.diagram.appendChild(
       createSvgElement("text", {
-        x: baseX + state.stileWidth * scale + (calculations.panelWidth * scale) / 2,
-        y: 40,
-        "text-anchor": "middle",
+        x: labelX,
+        y: labelStartY + labelLineHeight,
+        "text-anchor": "start",
         "font-size": 11,
         "font-weight": "bold",
         "font-family": "Courier New, monospace",
         fill: "#205EA6",
       })
     ).textContent = `PANEL: ${toFraction(calculations.panelWidth)} IN W`;
+  }
 
+  els.diagram.appendChild(
+    createSvgElement("text", {
+      x: labelX,
+      y: labelStartY + labelLineHeight * 2,
+      "text-anchor": "start",
+      "font-size": 12,
+      "font-weight": "bold",
+      "font-family": "Courier New, monospace",
+      fill: "#100F0F",
+    })
+  ).textContent = `${toFraction(state.cabinetHeight)} IN TOTAL HEIGHT`;
+
+  if (calculations.panelHeight > 0) {
     els.diagram.appendChild(
       createSvgElement("text", {
-        x: baseX + state.cabinetWidth * scale + 35,
-        y: baseY + state.railWidth * scale + (calculations.panelHeight * scale) / 2,
-        "text-anchor": "middle",
+        x: labelX,
+        y: labelStartY + labelLineHeight * 3,
+        "text-anchor": "start",
         "font-size": 11,
         "font-weight": "bold",
         "font-family": "Courier New, monospace",
         fill: "#24837B",
-        transform: `rotate(-90, ${baseX + state.cabinetWidth * scale + 35}, ${
-          baseY + state.railWidth * scale + (calculations.panelHeight * scale) / 2
-        })`,
       })
     ).textContent = `PANEL: ${toFraction(calculations.panelHeight)} IN H`;
   }
