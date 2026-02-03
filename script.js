@@ -53,6 +53,93 @@ function toFraction(decimal) {
   return `${wholeStr}${num}/${den}`;
 }
 
+function parseFraction(value) {
+  const match = value.match(/^(\d+)\s*\/\s*(\d+)$/);
+  if (!match) {
+    return NaN;
+  }
+  const numerator = parseInt(match[1], 10);
+  const denominator = parseInt(match[2], 10);
+  if (denominator === 0) {
+    return NaN;
+  }
+  return numerator / denominator;
+}
+
+function parseDimensionToInches(value) {
+  if (typeof value === "number") {
+    return value;
+  }
+  if (typeof value !== "string") {
+    return NaN;
+  }
+
+  let input = value.trim();
+  if (!input) {
+    return NaN;
+  }
+
+  let sign = 1;
+  if (input.startsWith("-")) {
+    sign = -1;
+    input = input.slice(1).trim();
+  }
+
+  let feet = 0;
+  const feetMatch = input.match(/(\d+(?:\.\d+)?)\s*(?:'|ft)\s*/i);
+  if (feetMatch) {
+    feet = parseFloat(feetMatch[1]);
+    input = input.replace(feetMatch[0], "");
+  }
+
+  input = input
+    .replace(/(?:inches|inch|in)\b/gi, "")
+    .replace(/"/g, "")
+    .trim();
+
+  if (!input) {
+    return sign * feet * 12;
+  }
+
+  input = input.replace(/(\d)\s*-\s*(\d)/g, "$1 $2");
+
+  let inches = 0;
+  let fraction = 0;
+  let invalid = false;
+
+  if (input.includes("/")) {
+    const parts = input.split(/\s+/);
+    if (parts.length === 1) {
+      fraction = parseFraction(parts[0]);
+      if (!Number.isFinite(fraction)) {
+        invalid = true;
+      }
+    } else {
+      const fractionPart = parts[parts.length - 1];
+      const wholePart = parts.slice(0, -1).join(" ");
+      inches = parseFloat(wholePart);
+      if (!Number.isFinite(inches)) {
+        invalid = true;
+      }
+      fraction = parseFraction(fractionPart);
+      if (!Number.isFinite(fraction)) {
+        invalid = true;
+      }
+    }
+  } else {
+    inches = parseFloat(input);
+    if (!Number.isFinite(inches)) {
+      invalid = true;
+    }
+  }
+
+  if (invalid) {
+    return NaN;
+  }
+
+  return sign * (feet * 12 + inches + fraction);
+}
+
 function calculate() {
   const totalStileWidth = (state.columns + 1) * state.stileWidth;
   const totalRailWidth = (state.rows + 1) * state.railWidth;
@@ -265,12 +352,12 @@ function clampRowsCols(value) {
   return numeric;
 }
 
-bindInput(els.cabinetWidth, "cabinetWidth", (value) => parseFloat(value));
-bindInput(els.cabinetHeight, "cabinetHeight", (value) => parseFloat(value));
+bindInput(els.cabinetWidth, "cabinetWidth", parseDimensionToInches);
+bindInput(els.cabinetHeight, "cabinetHeight", parseDimensionToInches);
 bindInput(els.rows, "rows", clampRowsCols);
 bindInput(els.columns, "columns", clampRowsCols);
-bindInput(els.stileWidth, "stileWidth", (value) => parseFloat(value));
-bindInput(els.railWidth, "railWidth", (value) => parseFloat(value));
+bindInput(els.stileWidth, "stileWidth", parseDimensionToInches);
+bindInput(els.railWidth, "railWidth", parseDimensionToInches);
 
 els.rows.classList.add("input-accent-green");
 els.columns.classList.add("input-accent-green");
