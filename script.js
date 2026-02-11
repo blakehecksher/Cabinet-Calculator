@@ -15,8 +15,9 @@ const els = {
   stileWidth: document.getElementById("stile-width"),
   railWidth: document.getElementById("rail-width"),
   panelWidth: document.getElementById("panel-width"),
+  stileCenterline: document.getElementById("stile-centerline"),
   panelHeight: document.getElementById("panel-height"),
-  panelTotal: document.getElementById("panel-total"),
+  railCenterline: document.getElementById("rail-centerline"),
   diagram: document.getElementById("diagram"),
 };
 
@@ -147,10 +148,14 @@ function calculate() {
   const availablePanelHeight = state.cabinetHeight - totalRailWidth;
   const panelWidth = availablePanelWidth / state.columns;
   const panelHeight = availablePanelHeight / state.rows;
+  const stileCenterline = panelWidth + state.stileWidth;
+  const railCenterline = panelHeight + state.railWidth;
 
   return {
     panelWidth,
     panelHeight,
+    stileCenterline,
+    railCenterline,
     totalStileWidth,
     totalRailWidth,
     availablePanelWidth,
@@ -169,8 +174,8 @@ function createSvgElement(tag, attributes) {
 }
 
 function renderSvg(calculations) {
-  const baseX = 50;
-  const baseY = 50;
+  const baseX = 80;
+  const baseY = 70;
   const scale = Math.min(350 / state.cabinetWidth, 280 / state.cabinetHeight);
 
   els.diagram.innerHTML = "";
@@ -242,8 +247,8 @@ function renderSvg(calculations) {
     }
   }
 
-  const labelStartY = 18;
-  const labelLineHeight = 16;
+  const labelStartY = 16;
+  const labelLineHeight = 14;
 
   const widthGroup = createSvgElement("g", {
     transform: `translate(${baseX}, ${labelStartY})`,
@@ -277,10 +282,25 @@ function renderSvg(calculations) {
     ).textContent = `PANEL: ${toFraction(calculations.panelWidth)} IN W`;
   }
 
+  if (calculations.stileCenterline > 0) {
+    widthGroup.appendChild(
+      createSvgElement("text", {
+        x: 0,
+        y: labelLineHeight * 2,
+        "text-anchor": "start",
+        "font-size": 10,
+        "font-weight": "bold",
+        "font-family": "Courier New, monospace",
+        fill: "#BC5215",
+        "dominant-baseline": "hanging",
+      })
+    ).textContent = `STILE CL-CL: ${toFraction(calculations.stileCenterline)} IN`;
+  }
+
   els.diagram.appendChild(widthGroup);
 
   const heightGroup = createSvgElement("g", {
-    transform: `translate(18, 50) rotate(-90)`,
+    transform: `translate(28, ${baseY}) rotate(-90)`,
   });
 
   heightGroup.appendChild(
@@ -311,6 +331,21 @@ function renderSvg(calculations) {
     ).textContent = `PANEL: ${toFraction(calculations.panelHeight)} IN H`;
   }
 
+  if (calculations.railCenterline > 0) {
+    heightGroup.appendChild(
+      createSvgElement("text", {
+        x: 0,
+        y: labelLineHeight * 2,
+        "text-anchor": "end",
+        "font-size": 10,
+        "font-weight": "bold",
+        "font-family": "Courier New, monospace",
+        fill: "#5E409D",
+        "dominant-baseline": "hanging",
+      })
+    ).textContent = `RAIL CL-CL: ${toFraction(calculations.railCenterline)} IN`;
+  }
+
   els.diagram.appendChild(heightGroup);
 }
 
@@ -327,8 +362,9 @@ function update() {
   const calculations = calculate();
 
   els.panelWidth.textContent = toFraction(calculations.panelWidth);
+  els.stileCenterline.textContent = toFraction(calculations.stileCenterline);
   els.panelHeight.textContent = toFraction(calculations.panelHeight);
-  els.panelTotal.textContent = String(state.rows * state.columns);
+  els.railCenterline.textContent = toFraction(calculations.railCenterline);
 
   renderSvg(calculations);
 }

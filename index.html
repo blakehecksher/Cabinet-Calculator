@@ -17,7 +17,7 @@
           <section class="card cabinet-card">
             <h2>CABINET DIMENSIONS</h2>
             <div class="field">
-              <label for="cabinet-width">WIDTH (INCHES OR FEET-INCHES) - REQUIRED</label>
+              <label for="cabinet-width">WIDTH (INCHES OR FEET-INCHES)</label>
               <input
                 id="cabinet-width"
                 type="text"
@@ -26,7 +26,7 @@
               />
             </div>
             <div class="field">
-              <label for="cabinet-height">HEIGHT (INCHES OR FEET-INCHES) - REQUIRED</label>
+              <label for="cabinet-height">HEIGHT (INCHES OR FEET-INCHES)</label>
               <input
                 id="cabinet-height"
                 type="text"
@@ -51,7 +51,9 @@
           <section class="card frame-card">
             <h2>FRAME MEMBER DIMENSIONS</h2>
             <div class="field">
-              <label for="stile-width">STILE WIDTH (INCHES OR FEET-INCHES) - VERTICAL MEMBERS</label>
+              <label for="stile-width"
+                >STILE WIDTH (INCHES OR FEET-INCHES) - VERTICAL MEMBERS</label
+              >
               <input
                 id="stile-width"
                 type="text"
@@ -60,7 +62,9 @@
               />
             </div>
             <div class="field">
-              <label for="rail-width">RAIL WIDTH (INCHES OR FEET-INCHES) - HORIZONTAL MEMBERS</label>
+              <label for="rail-width"
+                >RAIL WIDTH (INCHES OR FEET-INCHES) - HORIZONTAL MEMBERS</label
+              >
               <input
                 id="rail-width"
                 type="text"
@@ -78,15 +82,20 @@
                 <div id="panel-width" class="result-value">0</div>
                 <div class="result-unit">INCHES</div>
               </div>
+              <div class="result-card result-orange">
+                <div class="result-label">STILE CL-CL</div>
+                <div id="stile-centerline" class="result-value">0</div>
+                <div class="result-unit">INCHES</div>
+              </div>
               <div class="result-card result-teal">
                 <div class="result-label">PANEL HEIGHT</div>
                 <div id="panel-height" class="result-value">0</div>
                 <div class="result-unit">INCHES</div>
               </div>
               <div class="result-card result-purple">
-                <div class="result-label">TOTAL PANELS</div>
-                <div id="panel-total" class="result-value">0</div>
-                <div class="result-unit">UNITS</div>
+                <div class="result-label">RAIL CL-CL</div>
+                <div id="rail-centerline" class="result-value">0</div>
+                <div class="result-unit">INCHES</div>
               </div>
             </div>
           </section>
@@ -94,7 +103,12 @@
           <section class="drawing drawing-card">
             <h2>TECHNICAL DRAWING - FACE FRAME LAYOUT</h2>
             <div class="drawing-frame">
-              <svg id="diagram" viewBox="0 0 450 350" width="100%" height="100%"></svg>
+              <svg
+                id="diagram"
+                viewBox="0 0 450 350"
+                width="100%"
+                height="100%"
+              ></svg>
             </div>
           </section>
         </div>

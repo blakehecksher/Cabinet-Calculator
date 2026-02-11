@@ -209,7 +209,7 @@ input:focus {
 
 .result-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
   margin-top: auto;
 }
@@ -261,6 +261,15 @@ input:focus {
 .result-purple .result-value,
 .result-purple .result-unit {
   color: var(--accent-purple);
+}
+
+.result-orange {
+  border-color: var(--accent-orange);
+}
+
+.result-orange .result-value,
+.result-orange .result-unit {
+  color: var(--accent-orange);
 }
 
 .drawing {
