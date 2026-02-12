@@ -361,10 +361,10 @@ function update() {
   updateValidation();
   const calculations = calculate();
 
-  els.panelWidth.textContent = toFraction(calculations.panelWidth);
-  els.stileCenterline.textContent = toFraction(calculations.stileCenterline);
-  els.panelHeight.textContent = toFraction(calculations.panelHeight);
-  els.railCenterline.textContent = toFraction(calculations.railCenterline);
+  els.panelWidth.textContent = `${toFraction(calculations.panelWidth)}"`;
+  els.stileCenterline.textContent = `${toFraction(calculations.stileCenterline)}"`;
+  els.panelHeight.textContent = `${toFraction(calculations.panelHeight)}"`;
+  els.railCenterline.textContent = `${toFraction(calculations.railCenterline)}"`;
 
   renderSvg(calculations);
 }
@@ -388,6 +388,55 @@ function clampRowsCols(value) {
   return numeric;
 }
 
+async function copyText(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const fallback = document.createElement("textarea");
+  fallback.value = text;
+  fallback.setAttribute("readonly", "");
+  fallback.style.position = "fixed";
+  fallback.style.opacity = "0";
+  document.body.appendChild(fallback);
+  fallback.select();
+  const copied = document.execCommand("copy");
+  document.body.removeChild(fallback);
+
+  if (!copied) {
+    throw new Error("Copy failed");
+  }
+}
+
+async function handleCopyValue(event) {
+  const value = event.currentTarget.textContent.trim();
+
+  try {
+    await copyText(value);
+    event.currentTarget.title = "Copied!";
+  } catch (_error) {
+    event.currentTarget.title = "Unable to copy";
+  }
+
+  setTimeout(() => {
+    event.currentTarget.title = "Click to copy";
+  }, 1200);
+}
+
+function setupCopyTarget(el) {
+  el.setAttribute("title", "Click to copy");
+  el.setAttribute("role", "button");
+  el.setAttribute("tabindex", "0");
+  el.addEventListener("click", handleCopyValue);
+  el.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      handleCopyValue({ currentTarget: el });
+    }
+  });
+}
+
 bindInput(els.cabinetWidth, "cabinetWidth", parseDimensionToInches);
 bindInput(els.cabinetHeight, "cabinetHeight", parseDimensionToInches);
 bindInput(els.rows, "rows", clampRowsCols);
@@ -399,5 +448,9 @@ els.rows.classList.add("input-accent-green");
 els.columns.classList.add("input-accent-green");
 els.stileWidth.classList.add("input-accent-orange");
 els.railWidth.classList.add("input-accent-orange");
+setupCopyTarget(els.panelWidth);
+setupCopyTarget(els.stileCenterline);
+setupCopyTarget(els.panelHeight);
+setupCopyTarget(els.railCenterline);
 
 update();

@@ -235,6 +235,19 @@ input:focus {
   font-family: "Courier New", Courier, monospace;
 }
 
+.copyable-value {
+  cursor: pointer;
+  transition: transform 120ms ease, text-decoration-color 120ms ease;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+}
+
+.copyable-value:hover,
+.copyable-value:focus {
+  transform: scale(1.03);
+  text-decoration-color: currentColor;
+}
+
 .result-unit {
   font-size: 14px;
   font-weight: bold;
