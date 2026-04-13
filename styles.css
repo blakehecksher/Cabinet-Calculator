@@ -81,7 +81,7 @@ body {
 .layout {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-template-rows: repeat(3, minmax(0, 1fr));
+  grid-template-rows: auto 1fr auto;
   grid-template-areas:
     "cabinet results results"
     "layout drawing drawing"
@@ -178,6 +178,31 @@ input:focus {
 
 .input-invalid {
   border-color: var(--accent-red);
+}
+
+.checkbox-row {
+  display: flex;
+  gap: 16px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--muted);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: auto;
+  accent-color: var(--accent-orange);
+  cursor: pointer;
+  padding: 0;
 }
 
 .input-accent-green:focus {

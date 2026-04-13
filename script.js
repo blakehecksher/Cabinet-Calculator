@@ -5,6 +5,8 @@ const state = {
   columns: 2,
   stileWidth: 2,
   railWidth: 2,
+  endStiles: true,
+  endRails: true,
 };
 
 const els = {
@@ -14,6 +16,8 @@ const els = {
   columns: document.getElementById("columns"),
   stileWidth: document.getElementById("stile-width"),
   railWidth: document.getElementById("rail-width"),
+  endStiles: document.getElementById("end-stiles"),
+  endRails: document.getElementById("end-rails"),
   panelWidth: document.getElementById("panel-width"),
   stileCenterline: document.getElementById("stile-centerline"),
   panelHeight: document.getElementById("panel-height"),
@@ -56,17 +60,49 @@ function toFraction(decimal) {
   return `${wholeStr}${num}/${den}`;
 }
 
-function parseFraction(value) {
-  const match = value.match(/^(\d+)\s*\/\s*(\d+)$/);
-  if (!match) {
-    return NaN;
+function parseFraction(str) {
+  str = str.trim();
+  if (/^-?\d+\s+\d+\/\d+$/.test(str)) {
+    const [whole, frac] = str.split(/\s+/);
+    const [num, den] = frac.split("/");
+    return (
+      Math.sign(parseFloat(whole)) *
+      (Math.abs(parseFloat(whole)) + parseInt(num, 10) / parseInt(den, 10))
+    );
   }
-  const numerator = parseInt(match[1], 10);
-  const denominator = parseInt(match[2], 10);
-  if (denominator === 0) {
-    return NaN;
+  if (/^-?\d+\/\d+$/.test(str)) {
+    const [num, den] = str.split("/");
+    return parseInt(num, 10) / parseInt(den, 10);
   }
-  return numerator / denominator;
+  return parseFloat(str);
+}
+
+function normalizeInput(s) {
+  return s
+    .replace(/[''′]/g, "'")
+    .replace(/[""″]/g, '"')
+    .replace(/[×x]/gi, "*")
+    .replace(/÷/g, "/")
+    .replace(/[–—]/g, "-")
+    .replace(/,/g, "")
+    .replace(/\s*(['"])\s*/g, "$1");
+}
+
+
+function preprocess(s) {
+  const n = normalizeInput(s);
+  // Recreate regexes each call to avoid stateful lastIndex from /g flag
+  const rxMixed    = /((?:\d*\.?\d+)(?:\s+\d+\/\d+)?)\s*'\s*((?:\d*\.?\d+)(?:\s+\d+\/\d+)?)?\s*"/g;
+  const rxFt       = /((?:\d*\.?\d+)(?:\s+\d+\/\d+)?)\s*'/g;
+  const rxIn       = /((?:\d*\.?\d+)(?:\s+\d+\/\d+)?)\s*"/g;
+  const rxMixFrac  = /(-?\d+)\s+(\d+\/\d+)/g;
+  const rxPureFrac = /-?\d+\/\d+/g;
+  return n
+    .replace(rxMixed,    (m, f, i) => parseFraction(f) * 12 + (i ? parseFraction(i) : 0))
+    .replace(rxFt,       (m, f)    => parseFraction(f) * 12)
+    .replace(rxIn,       (m, i)    => parseFraction(i))
+    .replace(rxMixFrac,  (m, w, f) => `(${w}+(${f}))`)
+    .replace(rxPureFrac, (m)       => `(${m})`);
 }
 
 function parseDimensionToInches(value) {
@@ -77,82 +113,48 @@ function parseDimensionToInches(value) {
     return NaN;
   }
 
-  let input = value.trim();
+  const input = value.trim();
   if (!input) {
     return NaN;
   }
 
-  let sign = 1;
-  if (input.startsWith("-")) {
-    sign = -1;
-    input = input.slice(1).trim();
-  }
-
-  let feet = 0;
-  const feetMatch = input.match(/(\d+(?:\.\d+)?)\s*(?:'|ft)\s*/i);
-  if (feetMatch) {
-    feet = parseFloat(feetMatch[1]);
-    input = input.replace(feetMatch[0], "");
-  }
-
-  input = input
-    .replace(/(?:inches|inch|in)\b/gi, "")
-    .replace(/"/g, "")
-    .trim();
-
-  if (!input) {
-    return sign * feet * 12;
-  }
-
-  input = input.replace(/(\d)\s*-\s*(\d)/g, "$1 $2");
-
-  let inches = 0;
-  let fraction = 0;
-  let invalid = false;
-
-  if (input.includes("/")) {
-    const parts = input.split(/\s+/);
-    if (parts.length === 1) {
-      fraction = parseFraction(parts[0]);
-      if (!Number.isFinite(fraction)) {
-        invalid = true;
-      }
-    } else {
-      const fractionPart = parts[parts.length - 1];
-      const wholePart = parts.slice(0, -1).join(" ");
-      inches = parseFloat(wholePart);
-      if (!Number.isFinite(inches)) {
-        invalid = true;
-      }
-      fraction = parseFraction(fractionPart);
-      if (!Number.isFinite(fraction)) {
-        invalid = true;
-      }
+  try {
+    const preprocessed = preprocess(input);
+    // Only allow safe math characters after preprocessing
+    if (/[^0-9+\-*/().\s]/.test(preprocessed)) {
+      return NaN;
     }
-  } else {
-    inches = parseFloat(input);
-    if (!Number.isFinite(inches)) {
-      invalid = true;
+    // eslint-disable-next-line no-new-func
+    const result = Function(`"use strict"; return (${preprocessed})`)();
+    if (typeof result !== "number" || !Number.isFinite(result)) {
+      return NaN;
     }
-  }
-
-  if (invalid) {
+    return result;
+  } catch (_e) {
     return NaN;
   }
-
-  return sign * (feet * 12 + inches + fraction);
 }
 
 function calculate() {
-  const totalStileWidth = (state.columns + 1) * state.stileWidth;
-  const totalRailWidth = (state.rows + 1) * state.railWidth;
-  const availablePanelWidth = state.cabinetWidth - totalStileWidth;
+  const stileCount = (state.columns - 1) + (state.endStiles ? 2 : 0);
+  const railCount  = (state.rows - 1)    + (state.endRails  ? 2 : 0);
+  const totalStileWidth = stileCount * state.stileWidth;
+  const totalRailWidth  = railCount  * state.railWidth;
+  const availablePanelWidth  = state.cabinetWidth  - totalStileWidth;
   const availablePanelHeight = state.cabinetHeight - totalRailWidth;
-  const panelWidth = availablePanelWidth / state.columns;
+  const panelWidth  = availablePanelWidth  / state.columns;
   const panelHeight = availablePanelHeight / state.rows;
-  const stileCenterline = panelWidth + state.stileWidth;
-  const railCenterline = panelHeight + state.railWidth;
-  const verticalSpacing = state.cabinetWidth / state.columns;
+  const stileCenterline = stileCount >= 2
+    ? panelWidth + state.stileWidth
+    : stileCount === 1
+      ? panelWidth + state.stileWidth / 2
+      : null;
+  const railCenterline = railCount >= 2
+    ? panelHeight + state.railWidth
+    : railCount === 1
+      ? panelHeight + state.railWidth / 2
+      : null;
+  const verticalSpacing   = state.cabinetWidth  / state.columns;
   const horizontalSpacing = state.cabinetHeight / state.rows;
 
   return {
@@ -198,8 +200,17 @@ function renderSvg(calculations) {
     })
   );
 
+  const stileStep = state.stileWidth * scale + calculations.panelWidth * scale;
+  const railStep  = state.railWidth  * scale + calculations.panelHeight * scale;
+  const xOrigin   = state.endStiles ? baseX + state.stileWidth * scale : baseX;
+  const yOrigin   = state.endRails  ? baseY + state.railWidth  * scale : baseY;
+
   for (let i = 0; i <= state.columns; i += 1) {
-    const x = baseX + i * (state.stileWidth * scale + calculations.panelWidth * scale);
+    const isEnd = i === 0 || i === state.columns;
+    if (isEnd && !state.endStiles) continue;
+    const x = state.endStiles
+      ? baseX + i * stileStep
+      : baseX + calculations.panelWidth * scale + (i - 1) * stileStep;
     els.diagram.appendChild(
       createSvgElement("rect", {
         x,
@@ -214,7 +225,11 @@ function renderSvg(calculations) {
   }
 
   for (let i = 0; i <= state.rows; i += 1) {
-    const y = baseY + i * (state.railWidth * scale + calculations.panelHeight * scale);
+    const isEnd = i === 0 || i === state.rows;
+    if (isEnd && !state.endRails) continue;
+    const y = state.endRails
+      ? baseY + i * railStep
+      : baseY + calculations.panelHeight * scale + (i - 1) * railStep;
     els.diagram.appendChild(
       createSvgElement("rect", {
         x: baseX,
@@ -230,15 +245,8 @@ function renderSvg(calculations) {
 
   for (let row = 0; row < state.rows; row += 1) {
     for (let col = 0; col < state.columns; col += 1) {
-      const x =
-        baseX +
-        state.stileWidth * scale +
-        col * (state.stileWidth * scale + calculations.panelWidth * scale);
-      const y =
-        baseY +
-        state.railWidth * scale +
-        row * (state.railWidth * scale + calculations.panelHeight * scale);
-
+      const x = xOrigin + col * stileStep;
+      const y = yOrigin + row * railStep;
       els.diagram.appendChild(
         createSvgElement("rect", {
           x,
@@ -288,7 +296,7 @@ function renderSvg(calculations) {
     ).textContent = `PANEL: ${toFraction(calculations.panelWidth)} IN W`;
   }
 
-  if (calculations.stileCenterline > 0) {
+  if (calculations.stileCenterline !== null && calculations.stileCenterline > 0) {
     widthGroup.appendChild(
       createSvgElement("text", {
         x: 0,
@@ -337,7 +345,7 @@ function renderSvg(calculations) {
     ).textContent = `PANEL: ${toFraction(calculations.panelHeight)} IN H`;
   }
 
-  if (calculations.railCenterline > 0) {
+  if (calculations.railCenterline !== null && calculations.railCenterline > 0) {
     heightGroup.appendChild(
       createSvgElement("text", {
         x: 0,
@@ -368,9 +376,9 @@ function update() {
   const calculations = calculate();
 
   els.panelWidth.textContent = `${toFraction(calculations.panelWidth)}"`;
-  els.stileCenterline.textContent = `${toFraction(calculations.stileCenterline)}"`;
+  els.stileCenterline.textContent = calculations.stileCenterline !== null ? `${toFraction(calculations.stileCenterline)}"` : "N/A";
   els.panelHeight.textContent = `${toFraction(calculations.panelHeight)}"`;
-  els.railCenterline.textContent = `${toFraction(calculations.railCenterline)}"`;
+  els.railCenterline.textContent = calculations.railCenterline !== null ? `${toFraction(calculations.railCenterline)}"` : "N/A";
   els.verticalSpacing.textContent = `${toFraction(calculations.verticalSpacing)}"`;
   els.horizontalSpacing.textContent = `${toFraction(calculations.horizontalSpacing)}"`;
 
@@ -451,6 +459,11 @@ bindInput(els.rows, "rows", clampRowsCols);
 bindInput(els.columns, "columns", clampRowsCols);
 bindInput(els.stileWidth, "stileWidth", parseDimensionToInches);
 bindInput(els.railWidth, "railWidth", parseDimensionToInches);
+
+els.endStiles.checked = state.endStiles;
+els.endRails.checked  = state.endRails;
+els.endStiles.addEventListener("change", () => { state.endStiles = els.endStiles.checked; update(); });
+els.endRails.addEventListener("change",  () => { state.endRails  = els.endRails.checked;  update(); });
 
 els.rows.classList.add("input-accent-green");
 els.columns.classList.add("input-accent-green");

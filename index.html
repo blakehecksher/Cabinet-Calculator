@@ -50,10 +50,18 @@
 
           <section class="card frame-card">
             <h2>FRAME MEMBER DIMENSIONS</h2>
+            <div class="checkbox-row">
+              <label class="checkbox-label">
+                <input type="checkbox" id="end-stiles" checked />
+                END STILES
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="end-rails" checked />
+                END RAILS
+              </label>
+            </div>
             <div class="field">
-              <label for="stile-width"
-                >STILE WIDTH (INCHES OR FEET-INCHES) - VERTICAL MEMBERS</label
-              >
+              <label for="stile-width">STILE WIDTH - VERTICAL MEMBERS</label>
               <input
                 id="stile-width"
                 type="text"
@@ -62,9 +70,7 @@
               />
             </div>
             <div class="field">
-              <label for="rail-width"
-                >RAIL WIDTH (INCHES OR FEET-INCHES) - HORIZONTAL MEMBERS</label
-              >
+              <label for="rail-width">RAIL WIDTH - HORIZONTAL MEMBERS</label>
               <input
                 id="rail-width"
                 type="text"
@@ -114,7 +120,10 @@
               </div>
               <div class="result-card result-red">
                 <div class="result-label">HORIZONTAL SPACING</div>
-                <div id="horizontal-spacing" class="result-value copyable-value">
+                <div
+                  id="horizontal-spacing"
+                  class="result-value copyable-value"
+                >
                   0
                 </div>
                 <!-- <div class="result-unit">INCHES</div> -->
