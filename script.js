@@ -22,8 +22,6 @@ const els = {
   stileCenterline: document.getElementById("stile-centerline"),
   panelHeight: document.getElementById("panel-height"),
   railCenterline: document.getElementById("rail-centerline"),
-  verticalSpacing: document.getElementById("vertical-spacing"),
-  horizontalSpacing: document.getElementById("horizontal-spacing"),
   diagram: document.getElementById("diagram"),
 };
 
@@ -154,16 +152,11 @@ function calculate() {
     : railCount === 1
       ? panelHeight + state.railWidth / 2
       : null;
-  const verticalSpacing   = state.cabinetWidth  / state.columns;
-  const horizontalSpacing = state.cabinetHeight / state.rows;
-
   return {
     panelWidth,
     panelHeight,
     stileCenterline,
     railCenterline,
-    verticalSpacing,
-    horizontalSpacing,
     totalStileWidth,
     totalRailWidth,
     availablePanelWidth,
@@ -379,8 +372,6 @@ function update() {
   els.stileCenterline.textContent = calculations.stileCenterline !== null ? `${toFraction(calculations.stileCenterline)}"` : "N/A";
   els.panelHeight.textContent = `${toFraction(calculations.panelHeight)}"`;
   els.railCenterline.textContent = calculations.railCenterline !== null ? `${toFraction(calculations.railCenterline)}"` : "N/A";
-  els.verticalSpacing.textContent = `${toFraction(calculations.verticalSpacing)}"`;
-  els.horizontalSpacing.textContent = `${toFraction(calculations.horizontalSpacing)}"`;
 
   renderSvg(calculations);
 }
@@ -473,7 +464,5 @@ setupCopyTarget(els.panelWidth);
 setupCopyTarget(els.stileCenterline);
 setupCopyTarget(els.panelHeight);
 setupCopyTarget(els.railCenterline);
-setupCopyTarget(els.verticalSpacing);
-setupCopyTarget(els.horizontalSpacing);
 
 update();
