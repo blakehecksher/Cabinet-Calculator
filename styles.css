@@ -375,6 +375,20 @@ input:focus {
 }
 
 @media (max-width: 640px) {
+  body {
+    overflow: auto;
+  }
+
+  .page {
+    height: auto;
+    min-height: 100vh;
+    width: 100%;
+  }
+
+  .container {
+    min-width: 0;
+  }
+
   .layout {
     grid-template-columns: 1fr;
     grid-template-rows: auto;

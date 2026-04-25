@@ -26,21 +26,28 @@ const els = {
 };
 
 function toFraction(decimal) {
+  if (!Number.isFinite(decimal)) {
+    return "Invalid";
+  }
+
+  const sign = decimal < 0 ? "-" : "";
+  decimal = Math.abs(decimal);
+
   const whole = Math.floor(decimal);
   const remainder = decimal - whole;
 
   if (remainder === 0) {
-    return String(whole);
+    return `${sign}${whole}`;
   }
 
   const thirtySeconds = Math.round(remainder * 32);
 
   if (thirtySeconds === 0) {
-    return String(whole);
+    return `${sign}${whole}`;
   }
 
   if (thirtySeconds === 32) {
-    return String(whole + 1);
+    return `${sign}${whole + 1}`;
   }
 
   let num = thirtySeconds;
@@ -55,7 +62,7 @@ function toFraction(decimal) {
   }
 
   const wholeStr = whole > 0 ? `${whole} ` : "";
-  return `${wholeStr}${num}/${den}`;
+  return `${sign}${wholeStr}${num}/${den}`;
 }
 
 function parseFraction(str) {
@@ -161,6 +168,49 @@ function calculate() {
     totalRailWidth,
     availablePanelWidth,
     availablePanelHeight,
+  };
+}
+
+function validateState() {
+  const fieldValidity = {
+    cabinetWidth: Number.isFinite(state.cabinetWidth) && state.cabinetWidth > 0,
+    cabinetHeight: Number.isFinite(state.cabinetHeight) && state.cabinetHeight > 0,
+    rows: Number.isInteger(state.rows) && state.rows >= 1,
+    columns: Number.isInteger(state.columns) && state.columns >= 1,
+    stileWidth: Number.isFinite(state.stileWidth) && state.stileWidth >= 0,
+    railWidth: Number.isFinite(state.railWidth) && state.railWidth >= 0,
+  };
+
+  const errors = [];
+  Object.entries(fieldValidity).forEach(([key, isValid]) => {
+    if (!isValid) {
+      errors.push(key);
+    }
+  });
+
+  if (errors.length === 0) {
+    const stileCount = (state.columns - 1) + (state.endStiles ? 2 : 0);
+    const railCount = (state.rows - 1) + (state.endRails ? 2 : 0);
+    const availablePanelWidth = state.cabinetWidth - stileCount * state.stileWidth;
+    const availablePanelHeight = state.cabinetHeight - railCount * state.railWidth;
+
+    if (availablePanelWidth <= 0) {
+      fieldValidity.cabinetWidth = false;
+      fieldValidity.stileWidth = false;
+      errors.push("panelWidth");
+    }
+
+    if (availablePanelHeight <= 0) {
+      fieldValidity.cabinetHeight = false;
+      fieldValidity.railWidth = false;
+      errors.push("panelHeight");
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    fieldValidity,
+    errors,
   };
 }
 
@@ -356,16 +406,43 @@ function renderSvg(calculations) {
   els.diagram.appendChild(heightGroup);
 }
 
-function updateValidation() {
-  const rowValid = state.rows >= 1;
-  const colValid = state.columns >= 1;
+function renderInvalidSvg() {
+  els.diagram.innerHTML = "";
+  els.diagram.appendChild(
+    createSvgElement("text", {
+      x: 225,
+      y: 165,
+      "text-anchor": "middle",
+      "font-size": 14,
+      "font-weight": "bold",
+      "font-family": "Courier New, monospace",
+      fill: "#AF3029",
+    })
+  ).textContent = "CHECK INPUTS";
+}
 
-  els.rows.classList.toggle("input-invalid", !rowValid);
-  els.columns.classList.toggle("input-invalid", !colValid);
+function updateValidation(validation) {
+  els.cabinetWidth.classList.toggle("input-invalid", !validation.fieldValidity.cabinetWidth);
+  els.cabinetHeight.classList.toggle("input-invalid", !validation.fieldValidity.cabinetHeight);
+  els.rows.classList.toggle("input-invalid", !validation.fieldValidity.rows);
+  els.columns.classList.toggle("input-invalid", !validation.fieldValidity.columns);
+  els.stileWidth.classList.toggle("input-invalid", !validation.fieldValidity.stileWidth);
+  els.railWidth.classList.toggle("input-invalid", !validation.fieldValidity.railWidth);
 }
 
 function update() {
-  updateValidation();
+  const validation = validateState();
+  updateValidation(validation);
+
+  if (!validation.isValid) {
+    els.panelWidth.textContent = "Invalid";
+    els.stileCenterline.textContent = "Invalid";
+    els.panelHeight.textContent = "Invalid";
+    els.railCenterline.textContent = "Invalid";
+    renderInvalidSvg();
+    return;
+  }
+
   const calculations = calculate();
 
   els.panelWidth.textContent = `${toFraction(calculations.panelWidth)}"`;
@@ -380,7 +457,7 @@ function bindInput(el, key, parser) {
   el.value = state[key];
   const handleChange = (event) => {
     const value = parser(event.target.value);
-    state[key] = Number.isFinite(value) ? value : 0;
+    state[key] = value;
     update();
   };
   el.addEventListener("input", handleChange);
@@ -388,9 +465,9 @@ function bindInput(el, key, parser) {
 }
 
 function clampRowsCols(value) {
-  const numeric = parseInt(value, 10);
-  if (Number.isNaN(numeric) || numeric < 1) {
-    return 0;
+  const numeric = Number(value);
+  if (!Number.isInteger(numeric) || numeric < 1) {
+    return NaN;
   }
   return numeric;
 }
