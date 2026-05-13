@@ -149,16 +149,8 @@ function calculate() {
   const availablePanelHeight = state.cabinetHeight - totalRailWidth;
   const panelWidth  = availablePanelWidth  / state.columns;
   const panelHeight = availablePanelHeight / state.rows;
-  const stileCenterline = stileCount >= 2
-    ? panelWidth + state.stileWidth
-    : stileCount === 1
-      ? panelWidth + state.stileWidth / 2
-      : null;
-  const railCenterline = railCount >= 2
-    ? panelHeight + state.railWidth
-    : railCount === 1
-      ? panelHeight + state.railWidth / 2
-      : null;
+  const stileCenterline = stileCount >= 2 ? panelWidth + state.stileWidth : null;
+  const railCenterline = railCount >= 2 ? panelHeight + state.railWidth : null;
   return {
     panelWidth,
     panelHeight,
@@ -543,3 +535,13 @@ setupCopyTarget(els.panelHeight);
 setupCopyTarget(els.railCenterline);
 
 update();
+
+if (typeof module !== "undefined") {
+  module.exports = {
+    state,
+    calculate,
+    parseDimensionToInches,
+    toFraction,
+    validateState,
+  };
+}
